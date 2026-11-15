@@ -14,9 +14,11 @@
     "node": ">=20"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.6",
     "dotenv": "^16.4.7",
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "supertest": "^7.3.1"

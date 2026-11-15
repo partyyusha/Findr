@@ -38,6 +38,17 @@ backend/
 └── tests/           API tests (node --test + supertest)
 ```
 
+## Logging in
+
+`POST /api/auth/login` returns a `token`. Send it on every request that needs an account:
+
+```
+Authorization: Bearer <token>
+```
+
+Tokens last 7 days (`TOKEN_LIFETIME` in .env). Demo accounts from `data/seed.js` all use the
+password `findr123`, e.g. `aarav@northfield.edu` or `rohan@northfield.edu` (admin).
+
 ## Errors
 
 Every error comes back in the same shape, with a fitting status code:
@@ -53,3 +64,8 @@ Form errors also have `fields`, like `{ "title": "Use at least 3 characters." }`
 | Method | Path | What it does |
 | --- | --- | --- |
 | GET | `/api/health` | Is the API up? |
+| POST | `/api/auth/signup` | Create an account `{ full_name, email, password, community_id }` |
+| POST | `/api/auth/login` | Log in `{ email, password }`, returns `{ token, user }` |
+| GET | `/api/me` | The logged in user and their communities (needs login) |
+| GET | `/api/categories` | All item categories |
+| GET | `/api/communities` | All communities |

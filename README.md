@@ -35,6 +35,13 @@ and the item's whole journey is tracked until it is returned.
 
 3.4-3.6 still show a placeholder with their stage.
 
+**Phase 4: Backend** (in progress, see [backend/README.md](backend/README.md))
+
+| Stage | What it adds |
+| --- | --- |
+| 4.1 Express setup | `backend/` with Express, CORS, one error format and `GET /api/health` |
+| 4.2 Authentication | Signup and login with bcrypt passwords and JWT tokens, plus login and admin middleware |
+
 ### Mock data notes
 
 - Demo accounts all use the password `findr123`, e.g. `aarav@northfield.edu`. The login page lists a few.
