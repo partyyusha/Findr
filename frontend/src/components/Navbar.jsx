@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import Button from './Button'
 import Logo from './Logo'
+import { useAuth } from '../hooks/useAuth'
 
 // The main links shown in the navbar, in order.
 const NAV_LINKS = [
@@ -13,14 +14,21 @@ const NAV_LINKS = [
 ]
 
 function Navbar() {
+  const { user, logOut } = useAuth()
   // On phones the links hide behind a "Menu" button. This remembers if it is open.
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Close the phone menu whenever the user moves to another page
   useEffect(() => {
     setIsMenuOpen(false)
   }, [location.pathname])
+
+  async function handleLogOut() {
+    await logOut()
+    navigate('/')
+  }
 
   return (
     <header className="navbar">
@@ -37,16 +45,27 @@ function Navbar() {
               {link.label}
             </NavLink>
           ))}
+          {user && <NavLink to="/dashboard">Dashboard</NavLink>}
         </nav>
 
         <div className="navbar-actions">
-          {/* Login is simulated later, in Stage 3.1. For now these just open the pages. */}
-          <Button to="/login" variant="ghost" size="small">
-            Log in
-          </Button>
-          <Button to="/signup" size="small" className="navbar-signup">
-            Sign up
-          </Button>
+          {user ? (
+            <>
+              <span className="navbar-user">Hi, {user.full_name.split(' ')[0]}</span>
+              <Button variant="ghost" size="small" onClick={handleLogOut}>
+                Log out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button to="/login" variant="ghost" size="small">
+                Log in
+              </Button>
+              <Button to="/signup" size="small" className="navbar-signup">
+                Sign up
+              </Button>
+            </>
+          )}
 
           <Button
             variant="secondary"

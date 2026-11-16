@@ -5,13 +5,22 @@
   words people see. That way "Returned" looks the same on every page.
 */
 const BADGE_STYLES = {
+  // report type
   LOST: { colour: 'lost', label: 'Lost' },
   FOUND: { colour: 'found', label: 'Found' },
+
+  // item status
   OPEN: { colour: 'info', label: 'Open' },
   CLAIM_PENDING: { colour: 'pending', label: 'Claim pending' },
   CLAIM_APPROVED: { colour: 'found', label: 'Claim approved' },
   RETURNED: { colour: 'returned', label: 'Returned' },
   CLOSED: { colour: 'neutral', label: 'Closed' },
+
+  // claim status
+  PENDING: { colour: 'pending', label: 'Waiting for finder' },
+  APPROVED: { colour: 'found', label: 'Approved' },
+  REJECTED: { colour: 'lost', label: 'Not approved' },
+  WITHDRAWN: { colour: 'neutral', label: 'Withdrawn' },
 }
 
 function Badge({ status }) {

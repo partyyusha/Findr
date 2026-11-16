@@ -1,0 +1,113 @@
+/* Claim page */
+
+.claim-page {
+  display: grid;
+  gap: var(--space-lg);
+  max-width: 640px;
+  padding-top: var(--space-xl);
+}
+
+.claim-back {
+  justify-self: start;
+  font-weight: 700;
+}
+
+.claim-card {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.claim-item {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-sm);
+}
+
+.claim-item h1 {
+  margin: 0;
+  font-size: var(--font-size-h2);
+}
+
+.claim-item p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.claim-form,
+.claim-blocked {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.claim-blocked .alert {
+  margin: 0;
+}
+
+.claim-blocked .button {
+  justify-self: start;
+}
+
+.claim-question {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-medium);
+  background: var(--color-primary-light);
+}
+
+.claim-question-label {
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.claim-question p {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--font-size-large);
+  font-weight: 700;
+}
+
+.claim-small-print {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.claim-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* ---------- Sent ---------- */
+
+.claim-done {
+  justify-items: center;
+  text-align: center;
+}
+
+.claim-done h1 {
+  margin: 0;
+}
+
+.claim-done p {
+  margin: 0;
+  max-width: 440px;
+  color: var(--color-text-muted);
+}
+
+.claim-done .claim-actions {
+  justify-content: center;
+}
+
+.claim-done-tick {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-found);
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
