@@ -188,7 +188,7 @@ function ReportPage() {
             ? 'Thanks for helping. Describe what you found and set a question only the owner can answer.'
             : 'Describe what you lost and where. Your report stays searchable until you close it.'}
         </p>
-        {user && <p className="report-posting-as">Posting as {user.full_name} (demo account until login arrives)</p>}
+        {user && <p className="report-posting-as">Posting as {user.full_name}</p>}
       </header>
 
       <div className="report-type" role="radiogroup" aria-label="What happened?">

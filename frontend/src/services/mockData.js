@@ -1,10 +1,12 @@
+import { sha256 } from '../utils/sha256'
+
 // Mock rows for the 10 tables in dbms/03_schema.sql (same column names).
 // Pages don't import this directly, they go through the services.
 //
 // Not the same as the real DB:
 // - readable ids instead of UUIDs
 // - answers hashed with sha256 (backend will use argon2id)
-// - no password hashes until login (3.1)
+// - passwords hashed with sha256 too (backend will use bcrypt or argon2id)
 //
 // Answers for testing claims (3.3), case doesn't matter:
 //  item-bottle-cafeteria   monstera     item-umbrella-gate     blue
@@ -14,17 +16,18 @@
 //  item-calculator-exam    neha         item-phone-bus-stop    mountains
 //  item-bottle-hostel      aarav
 
-// TODO(3.1): replace with the logged in user
-export const CURRENT_USER_ID = 'user-aarav'
+// every demo account uses this password
+export const DEMO_PASSWORD = 'findr123'
+const demoPasswordHash = sha256(DEMO_PASSWORD)
 
 export const users = [
-  { user_id: 'user-aarav', full_name: 'Aarav Kapoor', email: 'aarav@northfield.edu', phone: '+91 98100 11111', profile_image_url: null, created_at: '2026-08-01T09:00:00+05:30' },
-  { user_id: 'user-ananya', full_name: 'Ananya Sharma', email: 'ananya@northfield.edu', phone: '+91 98100 22222', profile_image_url: null, created_at: '2026-08-02T10:00:00+05:30' },
-  { user_id: 'user-rohan', full_name: 'Rohan Verma', email: 'rohan@northfield.edu', phone: null, profile_image_url: null, created_at: '2026-08-02T11:30:00+05:30' },
-  { user_id: 'user-kabir', full_name: 'Kabir Singh', email: 'kabir@northfield.edu', phone: '+91 98100 33333', profile_image_url: null, created_at: '2026-08-04T15:00:00+05:30' },
-  { user_id: 'user-meera', full_name: 'Meera Iyer', email: 'meera@greenview.in', phone: null, profile_image_url: null, created_at: '2026-08-05T18:20:00+05:30' },
-  { user_id: 'user-priya', full_name: 'Priya Nair', email: 'priya@lakesideresidency.in', phone: '+91 98100 44444', profile_image_url: null, created_at: '2026-08-10T08:45:00+05:30' },
-  { user_id: 'user-arjun', full_name: 'Arjun Mehta', email: 'arjun@lakesideresidency.in', phone: null, profile_image_url: null, created_at: '2026-08-11T12:10:00+05:30' },
+  { user_id: 'user-aarav', full_name: 'Aarav Kapoor', email: 'aarav@northfield.edu', password_hash: demoPasswordHash, phone: '+91 98100 11111', profile_image_url: null, created_at: '2026-08-01T09:00:00+05:30' },
+  { user_id: 'user-ananya', full_name: 'Ananya Sharma', email: 'ananya@northfield.edu', password_hash: demoPasswordHash, phone: '+91 98100 22222', profile_image_url: null, created_at: '2026-08-02T10:00:00+05:30' },
+  { user_id: 'user-rohan', full_name: 'Rohan Verma', email: 'rohan@northfield.edu', password_hash: demoPasswordHash, phone: null, profile_image_url: null, created_at: '2026-08-02T11:30:00+05:30' },
+  { user_id: 'user-kabir', full_name: 'Kabir Singh', email: 'kabir@northfield.edu', password_hash: demoPasswordHash, phone: '+91 98100 33333', profile_image_url: null, created_at: '2026-08-04T15:00:00+05:30' },
+  { user_id: 'user-meera', full_name: 'Meera Iyer', email: 'meera@greenview.in', password_hash: demoPasswordHash, phone: null, profile_image_url: null, created_at: '2026-08-05T18:20:00+05:30' },
+  { user_id: 'user-priya', full_name: 'Priya Nair', email: 'priya@lakesideresidency.in', password_hash: demoPasswordHash, phone: '+91 98100 44444', profile_image_url: null, created_at: '2026-08-10T08:45:00+05:30' },
+  { user_id: 'user-arjun', full_name: 'Arjun Mehta', email: 'arjun@lakesideresidency.in', password_hash: demoPasswordHash, phone: null, profile_image_url: null, created_at: '2026-08-11T12:10:00+05:30' },
 ]
 
 export const communities = [

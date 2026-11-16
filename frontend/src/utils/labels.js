@@ -14,3 +14,8 @@ export const ITEM_STATUS_LABELS = {
   RETURNED: 'Returned',
   CLOSED: 'Closed',
 }
+
+// A claim stays APPROVED after the handover, so show RETURNED once the item is back
+export function claimBadgeStatus(claim) {
+  return claim.status === 'APPROVED' && claim.item.status === 'RETURNED' ? 'RETURNED' : claim.status
+}

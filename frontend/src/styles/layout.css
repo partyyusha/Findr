@@ -173,3 +173,17 @@
   margin-top: var(--space-lg);
   font-size: var(--font-size-small);
 }
+
+/* "Hi, Aarav" next to Log out */
+.navbar-user {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .navbar-user {
+    display: none;
+  }
+}

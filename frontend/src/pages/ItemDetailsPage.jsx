@@ -6,13 +6,72 @@ import EmptyState from '../components/EmptyState'
 import ItemCard from '../components/ItemCard'
 import ItemMap from '../components/ItemMap'
 import { useAsync } from '../hooks/useAsync'
+import { useAuth } from '../hooks/useAuth'
+import { checkCanClaim } from '../services/claimService'
 import { getItem, hasMapLocation, listSimilarItems } from '../services/itemService'
 import { formatDate } from '../utils/formatDate'
 import { COMMUNITY_TYPE_LABELS } from '../utils/labels'
 import '../styles/pages/item-details.css'
 
 // Claim button only on FOUND items that are still open. LOST items get "I found this" instead.
-// The private question isn't shown here, only on the claim form (3.3).
+// The private question isn't shown here, only on the claim form.
+
+function ClaimStep({ item }) {
+  const { user } = useAuth()
+  const check = useAsync(() => checkCanClaim(item.item_id), [item.item_id, user?.user_id])
+
+  if (check.isLoading) {
+    return <p className="details-next-text">Checking…</p>
+  }
+
+  const problem = check.data
+
+  if (problem?.code === 'own-item') {
+    return (
+      <>
+        <h2>You found this one</h2>
+        <p className="details-next-text">Claims from the owner will show up in your dashboard.</p>
+        <Button to="/dashboard/found-reports" variant="secondary">
+          My found reports
+        </Button>
+      </>
+    )
+  }
+
+  if (problem?.code === 'already-claimed') {
+    return (
+      <>
+        <h2>You've claimed this</h2>
+        <p className="details-next-text">The finder is looking at your claim. Follow it in My claims.</p>
+        <Button to="/dashboard/claims" variant="secondary">
+          My claims
+        </Button>
+      </>
+    )
+  }
+
+  if (problem?.code === 'not-member') {
+    return (
+      <>
+        <h2>Is this yours?</h2>
+        <p className="details-next-text">{problem.message}</p>
+      </>
+    )
+  }
+
+  // guests are sent to log in first and come back to the claim form
+  return (
+    <>
+      <h2>Is this yours?</h2>
+      <p className="details-next-text">
+        To claim it, you answer a private question set by the finder. Only the real owner should know the answer.
+      </p>
+      <Button to={`/items/${item.item_id}/claim`} size="large">
+        Claim this item
+      </Button>
+    </>
+  )
+}
 
 function NextStep({ item }) {
   if (item.report_type === 'LOST') {
@@ -31,18 +90,7 @@ function NextStep({ item }) {
   }
 
   if (item.status === 'OPEN' || item.status === 'CLAIM_PENDING') {
-    return (
-      <>
-        <h2>Is this yours?</h2>
-        <p className="details-next-text">
-          To claim it, you answer a private question set by the finder. Only the real owner should know the answer.
-        </p>
-        {/* needs login (3.1), which should send them back here. claim form is 3.3 */}
-        <Button to={`/login?redirect=${encodeURIComponent(`/items/${item.item_id}`)}`} size="large">
-          Claim this item
-        </Button>
-      </>
-    )
+    return <ClaimStep item={item} />
   }
 
   const message = {

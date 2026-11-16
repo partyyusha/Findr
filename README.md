@@ -15,7 +15,7 @@ and the item's whole journey is tracked until it is returned.
 | 1.3 Routing and layout | Every page has its address, plus the navbar, footer and a 404 page |
 | 1.4 Home page | Hero with search, recent items, how Findr works, communities |
 
-**Phase 2: Core frontend pages** (this branch)
+**Phase 2: Core frontend pages** (done)
 
 | Stage | What it adds |
 | --- | --- |
@@ -25,13 +25,22 @@ and the item's whole journey is tracked until it is returned.
 | 2.4 Report form | `/report` for lost and found reports, with photos, an optional map pin and the private question |
 | 2.5 Map | `/map` with every pinned report (red = lost, green = found), same filters as Explore |
 
-Phase 3 pages still show a placeholder with their stage.
+**Phase 3: User workflows** (in progress)
+
+| Stage | What it adds |
+| --- | --- |
+| 3.1 Login and signup | `/login`, `/signup`, and guests get sent to login before reporting or claiming |
+| 3.2 Dashboard | `/dashboard` overview, my lost reports (edit, close, possible matches), my found reports (claim counts) |
+| 3.3 Claims | `/items/:id/claim` checks the answer before a claim exists. `/dashboard/claims` to follow or withdraw them |
+
+3.4-3.6 still show a placeholder with their stage.
 
 ### Mock data notes
 
-- No login yet, so everyone is the demo user Aarav Kapoor (until 3.1).
-- Reports you post are saved in localStorage. Reset with `localStorage.removeItem('findr-mock-reports-v1')`.
-- Answers to the sample private questions are at the top of `src/services/mockData.js`, for testing claims later.
+- Demo accounts all use the password `findr123`, e.g. `aarav@northfield.edu`. The login page lists a few.
+- Everything you do (reports, claims, new accounts) is saved in localStorage.
+  Reset with `localStorage.removeItem('findr-mock-db-v2')`.
+- Answers to the sample private questions are at the top of `src/services/mockData.js`.
 
 ## Run it on your computer
 
@@ -59,11 +68,14 @@ frontend/
 └── src/
     ├── main.jsx          starting point: sets up React and the router
     ├── App.jsx           list of every page and its address
-    ├── layouts/          the frame around pages (navbar + footer)
-    ├── components/       reusable pieces: Button, Badge, ItemCard, Navbar...
-    ├── pages/            one file per page
+    ├── layouts/          the frame around pages (navbar + footer, dashboard side menu)
+    ├── routes/           RequireLogin, which sends guests to /login
+    ├── context/          AuthProvider, keeps the logged in user for every page
+    ├── components/       reusable pieces: Button, Badge, ItemCard, ItemRow, Navbar...
+    ├── pages/            one file per page (dashboard pages in pages/dashboard)
     ├── services/         every data call (sample data now, the real API in Phase 5)
-    ├── hooks/            useAsync (loading data) and useItemFilters (filters in the URL)
+    │                     rules.js has the claim rules in one place
+    ├── hooks/            useAsync (loading data), useItemFilters (filters in the URL), useAuth
     ├── utils/            small helpers: dates, labels, hashing, photos, map settings
     └── styles/
         ├── tokens.css    every colour, size and spacing value

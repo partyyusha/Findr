@@ -1,10 +1,20 @@
 import { Route, Routes } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
+import DashboardLayout from './layouts/DashboardLayout'
+import RequireLogin from './routes/RequireLogin'
 import HomePage from './pages/HomePage'
 import ExplorePage from './pages/ExplorePage'
 import ItemDetailsPage from './pages/ItemDetailsPage'
 import ReportPage from './pages/ReportPage'
 import MapPage from './pages/MapPage'
+import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
+import ClaimPage from './pages/ClaimPage'
+import DashboardHomePage from './pages/dashboard/DashboardHomePage'
+import MyLostReportsPage from './pages/dashboard/MyLostReportsPage'
+import MyFoundReportsPage from './pages/dashboard/MyFoundReportsPage'
+import MyClaimsPage from './pages/dashboard/MyClaimsPage'
+import EditReportPage from './pages/dashboard/EditReportPage'
 import StyleGuidePage from './pages/StyleGuidePage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -12,24 +22,13 @@ import NotFoundPage from './pages/NotFoundPage'
 /*
   Every page in Findr and the address (route) it lives at.
 
-  Home and the Phase 2 pages (Explore, Item details, Report, Map) are real.
-  The rest are placeholders that say which roadmap stage builds them.
-  When a stage is done, swap its placeholder for the real page component.
+  Pages inside <RequireLogin> need an account. Guests get sent to /login
+  and come back after logging in.
+  The placeholders say which roadmap stage builds them.
 */
 const PLANNED_PAGES = [
-  // Public pages
-  { path: '/login', title: 'Log in', stage: '3.1', description: 'Sign in to report items and make claims.' },
-  { path: '/signup', title: 'Create an account', stage: '3.1', description: 'Join your college or community on Findr.' },
-
-  // User dashboard
-  { path: '/dashboard', title: 'Dashboard', stage: '3.2', description: 'Your reports, claims and updates in one place.' },
-  { path: '/dashboard/lost-reports', title: 'My lost reports', stage: '3.2', description: 'Items you reported as lost, with possible matches.' },
-  { path: '/dashboard/found-reports', title: 'My found reports', stage: '3.2', description: 'Items you found and the claims they received.' },
-  { path: '/dashboard/claims', title: 'My claims', stage: '3.3', description: 'Track every claim you submitted.' },
   { path: '/dashboard/verification', title: 'Claim verification', stage: '3.4', description: 'Review claims on items you found and approve the real owner.' },
   { path: '/dashboard/notifications', title: 'Notifications', stage: '3.5', description: 'Claim decisions and handover updates.' },
-
-  // Account, support and admin
   { path: '/profile', title: 'Your profile', stage: '3.6', description: 'Your name, community and contact details.' },
   { path: '/help', title: 'Help and contact', stage: '3.6', description: 'FAQs, safety tips and a way to reach the team.' },
   { path: '/admin', title: 'Admin dashboard', stage: '3.6', description: 'Moderate reports, users, claims and communities.' },
@@ -43,8 +42,22 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/items/:id" element={<ItemDetailsPage />} />
-        <Route path="/report" element={<ReportPage />} />
         <Route path="/map" element={<MapPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+
+        <Route element={<RequireLogin />}>
+          <Route path="/report" element={<ReportPage />} />
+          <Route path="/items/:id/claim" element={<ClaimPage />} />
+
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<DashboardHomePage />} />
+            <Route path="lost-reports" element={<MyLostReportsPage />} />
+            <Route path="found-reports" element={<MyFoundReportsPage />} />
+            <Route path="claims" element={<MyClaimsPage />} />
+            <Route path="reports/:id/edit" element={<EditReportPage />} />
+          </Route>
+        </Route>
 
         {PLANNED_PAGES.map((page) => (
           <Route

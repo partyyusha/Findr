@@ -1,0 +1,135 @@
+/* Login and signup */
+
+.auth-page {
+  display: grid;
+  grid-template-columns: minmax(0, 440px) minmax(0, 340px);
+  justify-content: center;
+  align-items: start;
+  gap: var(--space-xl);
+  padding-top: var(--space-2xl);
+}
+
+.auth-page-single {
+  grid-template-columns: minmax(0, 480px);
+}
+
+.auth-card h1 {
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-size-h2);
+}
+
+.auth-intro {
+  color: var(--color-text-muted);
+}
+
+.auth-form {
+  display: grid;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.auth-form .button {
+  margin-top: var(--space-sm);
+}
+
+.auth-switch {
+  margin: var(--space-lg) 0 0;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ---------- Password show/hide ---------- */
+
+.password-input {
+  position: relative;
+}
+
+.password-input .input {
+  padding-right: 72px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  padding: 6px 10px;
+  border: none;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  background: var(--color-primary-light);
+}
+
+/* ---------- Demo accounts ---------- */
+
+.auth-demo {
+  padding: var(--space-lg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-large);
+}
+
+.auth-demo h2 {
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-size-h3);
+}
+
+.auth-demo p {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.auth-demo code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+}
+
+.auth-demo ul {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auth-demo li {
+  display: grid;
+  gap: 2px;
+  font-size: 0.875rem;
+}
+
+.auth-demo li span {
+  color: var(--color-text-muted);
+}
+
+.auth-demo-account {
+  justify-self: start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-demo-account:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  .auth-page {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: var(--space-xl);
+  }
+}

@@ -10,7 +10,8 @@ export const LIMITS = {
   answer: 100,
 }
 
-export function validateReport(form) {
+// title, category, description, date and place. Used by the report form and the edit form.
+export function validateItemDetails(form) {
   const errors = {}
   const title = form.title.trim()
   const description = form.description.trim()
@@ -26,10 +27,6 @@ export function validateReport(form) {
 
   if (!form.category_id) {
     errors.category_id = 'Choose a category.'
-  }
-
-  if (!form.community_id) {
-    errors.community_id = 'Choose the community where this happened.'
   }
 
   if (!description) {
@@ -50,6 +47,17 @@ export function validateReport(form) {
     errors.location_label = 'Say where, like "Main Cafeteria" or "Block B stairs".'
   } else if (location.length > LIMITS.location) {
     errors.location_label = `Keep it under ${LIMITS.location} characters.`
+  }
+
+  return errors
+}
+
+// The whole report form: item details, community and (for found items) the private question
+export function validateReport(form) {
+  const errors = validateItemDetails(form)
+
+  if (!form.community_id) {
+    errors.community_id = 'Choose the community where this happened.'
   }
 
   if (form.report_type === 'FOUND') {

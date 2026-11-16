@@ -1,5 +1,7 @@
-import { CURRENT_USER_ID, copy, createId, db, insertReport, networkDelay } from './mockStore'
+import { addNotification, copy, createId, db, insertReport, networkDelay, requireUserId, saveDb } from './mockStore'
+import { isActiveMember, isCommunityAdmin } from './rules'
 import { sha256 } from '../utils/sha256'
+import { validateItemDetails } from '../utils/validateReport'
 
 // Item functions. Async so they can become fetch() calls in phase 5
 // without changing the pages (API route noted above each one).
@@ -8,7 +10,7 @@ import { sha256 } from '../utils/sha256'
 // community_type, reporter_name and images[], like a JOIN would return.
 // answer_hash is never included.
 
-function toItemView(item) {
+export function toItemView(item) {
   const category = db.categories.find((row) => row.category_id === item.category_id)
   const community = db.communities.find((row) => row.community_id === item.community_id)
   const reporter = db.users.find((row) => row.user_id === item.reporter_id)
@@ -137,9 +139,8 @@ export function normaliseAnswer(answer) {
 export async function createItem(report) {
   await networkDelay(400)
 
-  const isMember = db.community_memberships.some(
-    (row) => row.user_id === CURRENT_USER_ID && row.community_id === report.community_id && row.membership_status === 'ACTIVE',
-  )
+  const userId = requireUserId()
+  const isMember = isActiveMember(userId, report.community_id)
 
   if (!['LOST', 'FOUND'].includes(report.report_type)) {
     throw new Error('Choose whether you lost or found the item.')
@@ -162,7 +163,7 @@ export async function createItem(report) {
 
   const item = {
     item_id: createId('item'),
-    reporter_id: CURRENT_USER_ID,
+    reporter_id: userId,
     community_id: report.community_id,
     category_id: report.category_id,
     report_type: report.report_type,
@@ -200,4 +201,136 @@ export async function createItem(report) {
   const photosSaved = insertReport({ item, images, question })
 
   return { item: copy(toItemView(item)), photosSaved }
+}
+
+// ---------- The logged in user's own reports (dashboard) ----------
+
+// reportType: 'LOST' or 'FOUND'. Newest report first.
+// FOUND reports also get pending_claims and total_claims.
+// phase 5: GET /api/me/items?type=...
+export async function listMyReports(reportType) {
+  await networkDelay()
+
+  const userId = requireUserId()
+  const reports = db.items
+    .filter((item) => item.reporter_id === userId && item.report_type === reportType)
+    .sort((itemA, itemB) => itemB.created_at.localeCompare(itemA.created_at))
+    .map((item) => {
+      const claims = db.claims.filter((claim) => claim.item_id === item.item_id)
+      return {
+        ...toItemView(item),
+        pending_claims: claims.filter((claim) => claim.status === 'PENDING').length,
+        total_claims: claims.length,
+      }
+    })
+
+  return copy(reports)
+}
+
+// Found items that could be this lost item: same community and category, still open.
+// phase 5: GET /api/items/:id/matches
+export async function listPossibleMatches(lostItemId, limit = 3) {
+  await networkDelay()
+
+  const lost = db.items.find((item) => item.item_id === lostItemId)
+  if (!lost) {
+    return []
+  }
+
+  const matches = db.items
+    .filter(
+      (item) =>
+        item.report_type === 'FOUND' &&
+        ['OPEN', 'CLAIM_PENDING'].includes(item.status) &&
+        item.community_id === lost.community_id &&
+        item.category_id === lost.category_id &&
+        item.reporter_id !== lost.reporter_id,
+    )
+    .map(toItemView)
+    .sort(newestFirst)
+
+  return copy(matches.slice(0, limit))
+}
+
+// Only items that are still open can be edited
+function findEditableItem(itemId, userId) {
+  const item = db.items.find((row) => row.item_id === itemId)
+  if (!item || item.reporter_id !== userId) {
+    throw new Error('You can only change your own reports.')
+  }
+  if (!['OPEN', 'CLAIM_PENDING'].includes(item.status)) {
+    throw new Error('This report is finished, so it can no longer be changed.')
+  }
+  return item
+}
+
+// changes: title, description, category_id, event_date, location_label.
+// Lost/found and the community can't change (the schema blocks switching the type too).
+// phase 5: PATCH /api/items/:id
+export async function updateItem(itemId, changes) {
+  await networkDelay(300)
+
+  const item = findEditableItem(itemId, requireUserId())
+
+  const errors = validateItemDetails(changes)
+  if (Object.keys(errors).length > 0) {
+    throw new Error(Object.values(errors)[0])
+  }
+  if (!db.categories.some((row) => row.category_id === changes.category_id)) {
+    throw new Error('Choose a category.')
+  }
+
+  item.title = changes.title.trim()
+  item.description = changes.description.trim()
+  item.category_id = changes.category_id
+  item.event_date = changes.event_date
+  item.location_label = changes.location_label.trim()
+  item.updated_at = new Date().toISOString()
+  saveDb()
+
+  return copy(toItemView(item))
+}
+
+// The reporter or a community admin can close a report that's still open.
+// Waiting claims get rejected so the claimants know.
+// phase 5: POST /api/items/:id/close
+export async function closeItem(itemId) {
+  await networkDelay(300)
+
+  const userId = requireUserId()
+  const item = db.items.find((row) => row.item_id === itemId)
+  if (!item) {
+    throw new Error('This report no longer exists.')
+  }
+  if (item.reporter_id !== userId && !isCommunityAdmin(userId, item.community_id)) {
+    throw new Error('You can only close your own reports.')
+  }
+  if (!['OPEN', 'CLAIM_PENDING'].includes(item.status)) {
+    throw new Error('Only open reports can be closed.')
+  }
+
+  const now = new Date().toISOString()
+  for (const claim of db.claims) {
+    if (claim.item_id === itemId && claim.status === 'PENDING') {
+      claim.status = 'REJECTED'
+      claim.review_note = 'The report was closed.'
+      // the schema only lets the finder review a claim
+      claim.reviewed_by = item.reporter_id
+      claim.reviewed_at = now
+      claim.updated_at = now
+      addNotification({
+        userId: claim.claimant_id,
+        itemId,
+        claimId: claim.claim_id,
+        type: 'CLAIM_REJECTED',
+        message: `The ${item.title} report was closed, so your claim was closed too.`,
+      })
+    }
+  }
+
+  item.status = 'CLOSED'
+  item.updated_at = now
+  saveDb()
+
+  return copy(toItemView(item))
 }
